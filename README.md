@@ -38,23 +38,27 @@ tests/          автотести
 
 ## Запуск
 
+Повний стек (база + застосунок) піднімається однією командою. Контейнер сам
+застосовує міграції та наповнює демодані.
+
 ```powershell
-# 1. Залежності
+docker compose -f deploy/docker-compose.yml up --build
+```
+
+- API / Swagger: http://127.0.0.1:8000/docs
+- Логін: http://127.0.0.1:8000/login
+- Зупинити: `docker compose -f deploy/docker-compose.yml down` (том з даними лишається)
+
+Локальний запуск uvicorn без контейнера застосунку (для тестів і відлагодження):
+
+```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
-
-# 2. Конфігурація
 Copy-Item config\env.example .env
-
-# 3. База даних
-docker compose -f deploy/docker-compose.yml up -d
-
-# 4. Міграції та демодані
+docker compose -f deploy/docker-compose.yml up -d db
 alembic upgrade head
 python -m scripts.seed
-
-# 5. Застосунок
 uvicorn app.main:app --reload
 ```
 
@@ -68,7 +72,15 @@ uvicorn app.main:app --reload
 | пасажир | `passenger@busline.ua` | `passenger123` | http://127.0.0.1:8000/home |
 | другий пасажир | `passenger2@busline.ua` | `passenger123` | для демонстрації IDOR |
 
-Окремий адміністратор: `python -m scripts.create_admin --email you@busline.ua --password secret-pass`
+Окремий адміністратор:
+
+```powershell
+# у контейнері
+docker compose -f deploy/docker-compose.yml exec app python -m scripts.create_admin you@busline.ua secret-pass
+
+# або локально, якщо uvicorn на хості
+python -m scripts.create_admin you@busline.ua secret-pass
+```
 
 ## Перевірка якості коду
 

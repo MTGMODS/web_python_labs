@@ -18,11 +18,14 @@
 write-сценарієм. Тому кешувати можна агресивно, а запис — лише через базу з
 транзакційними гарантіями.
 
-## 2. Поточний стан (лабораторна №1)
+## 2. Поточний стан (лабораторні №1–2)
 
 На цьому етапі свідомо реалізований **моноліт** — за темою 1 це виправданий вибір для
 проєкту на початковій стадії: проектування «на виріст» під гіпотетичне навантаження
-шкодить, поки не перевірена бізнес-логіка.
+шкодить, поки не перевірена бізнес-логіка. Застосунок і PostgreSQL запускаються
+одним Docker Compose (`deploy/docker-compose.yml`): це той самий моноліт, просто
+упакований так, щоб наступним кроком додати другий екземпляр і балансувальник
+без зміни коду.
 
 ```mermaid
 flowchart LR
@@ -32,14 +35,15 @@ flowchart LR
         admin["Панель перевізника"]
     end
 
-    subgraph app["Застосунок (моноліт, stateless)"]
-        api["FastAPI<br/>REST /api/v1"]
-        domain["Доменні правила<br/>app.domain"]
-        orm["SQLAlchemy 2.0<br/>пул з'єднань"]
+    subgraph compose["Docker Compose"]
+        subgraph app["Застосунок (моноліт, stateless)"]
+            api["FastAPI<br/>REST /api/v1"]
+            domain["Доменні правила<br/>app.domain"]
+            orm["SQLAlchemy 2.0<br/>пул з'єднань"]
+        end
+        db[("PostgreSQL 17")]
+        alembic["Alembic + seed<br/>на старті контейнера"]
     end
-
-    db[("PostgreSQL 17<br/>bus_types, buses, routes,<br/>trips, seats")]
-    alembic["Alembic<br/>міграції схеми"]
 
     web --> api
     mobile --> api

@@ -1,9 +1,10 @@
-# Інфраструктура для локальної розробки.
-# У лабораторній №1 піднімається лише PostgreSQL: сам застосунок
-# запускається локально через uvicorn. Redis, балансувальник та
-# додаткові екземпляри застосунку додаються у наступних роботах.
+# Повний локальний стек: PostgreSQL + FastAPI.
+# Запуск з кореня репозиторію:
+#   docker compose -f deploy/docker-compose.yml up --build
 #
-# Запуск: docker compose -f deploy/docker-compose.yml up -d
+# Redis, балансувальник і додаткові екземпляри застосунку —
+# наступні лабораторні роботи. Застосунок stateless, тому другий
+# сервіс app можна буде просто скопіювати за тим самим образом.
 
 services:
   db:
@@ -23,6 +24,37 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: bus-tickets-app:local
+    container_name: bus_tickets_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      APP_NAME: Bus Tickets Platform
+      DEBUG: "true"
+      # У мережі compose хост бази — ім'я сервісу, не localhost.
+      DATABASE_URL: postgresql+psycopg://bus_app:bus_app@db:5432/bus_tickets
+      SECRET_KEY: dev-only-secret-key-change-in-production
+      ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+      SEAT_HOLD_MINUTES: "10"
+      ADMIN_EMAIL: admin@busline.ua
+      ADMIN_PASSWORD: admin12345
+      RUN_SEED: "true"
+      UVICORN_RELOAD: "true"
+    volumes:
+      # Живе перезавантаження під час розробки: зміни в app/ підхоплює uvicorn.
+      - ../app:/app/app
+      - ../scripts:/app/scripts
+      - ../migrations:/app/migrations
+      - ../alembic.ini:/app/alembic.ini
 
 volumes:
   pgdata:
