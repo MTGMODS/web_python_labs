@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Вхід{% endblock %}
+
+{% block content %}
+<h1>Вхід у систему</h1>
+
+{% if registered %}
+    <p class="notice">Реєстрація успішна. Увійдіть зі своїми даними.</p>
+{% endif %}
+{% if error %}
+    <p class="error">{{ error }}</p>
+{% endif %}
+
+<form method="post" action="/login" class="card">
+    <label>
+        Email
+        <input type="email" name="email" value="{{ email or '' }}" required autofocus>
+    </label>
+    <label>
+        Пароль
+        <input type="password" name="password" required>
+    </label>
+    <button type="submit">Увійти</button>
+</form>
+
+<p>Немає акаунта? <a href="/register">Зареєструватися як пасажир</a>.</p>
+{% endblock %}

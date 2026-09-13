@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Панель перевізника{% endblock %}
+
+{% block content %}
+<h1>Панель перевізника</h1>
+<p>{{ current_user.full_name }} <span class="role">роль: {{ current_user.role.value }}</span></p>
+
+<div class="card">
+    <h2>Стан системи</h2>
+    <table>
+        <tr><th>Користувачів</th><td>{{ stats.users_total }}</td></tr>
+        <tr><th>Маршрутів</th><td>{{ stats.routes_total }}</td></tr>
+        <tr><th>Рейсів у розкладі</th><td>{{ stats.trips_total }}</td></tr>
+        {% for name, total in stats.tickets_by_status.items() %}
+            <tr><th>Квитків ({{ name }})</th><td>{{ total }}</td></tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="card">
+    <h2>Доступні дії</h2>
+    <p>Ця сторінка — заглушка панелі. Керування виконується через REST API:</p>
+    <ul>
+        {% for action in actions %}
+            <li><code>{{ action }}</code></li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

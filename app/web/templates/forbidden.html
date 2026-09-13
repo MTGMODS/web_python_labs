@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Доступ заборонено{% endblock %}
+
+{% block content %}
+<h1>403 — доступ заборонено</h1>
+<p class="error">{{ detail }}</p>
+<p>Ваша роль: <span class="role">{{ current_user.role.value }}</span>.
+Для цього розділу потрібна роль адміністратора.</p>
+<p><a href="/home">Повернутися до свого кабінету</a></p>
+{% endblock %}

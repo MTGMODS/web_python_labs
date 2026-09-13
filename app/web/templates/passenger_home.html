@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Кабінет пасажира{% endblock %}
+
+{% block content %}
+<h1>Вітаємо, {{ current_user.full_name }}</h1>
+<p><span class="role">роль: {{ current_user.role.value }}</span></p>
+
+<div class="card">
+    <h2>Мої квитки</h2>
+    {% if tickets %}
+        <table>
+            <tr><th>№</th><th>Рейс</th><th>Місце</th><th>Статус</th><th>Ціна</th></tr>
+            {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.id }}</td>
+                    <td>{{ ticket.trip_id }}</td>
+                    <td>{{ ticket.seat.number }}</td>
+                    <td>{{ ticket.status.value }}</td>
+                    <td>{{ ticket.price }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Квитків ще немає. Оберіть рейс через API та заблокуйте місце.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Доступні дії</h2>
+    <p>Ця сторінка — заглушка кабінету. Бізнес-операції виконуються через REST API:</p>
+    <ul>
+        {% for action in actions %}
+            <li><code>{{ action }}</code></li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

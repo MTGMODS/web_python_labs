@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Реєстрація{% endblock %}
+
+{% block content %}
+<h1>Реєстрація пасажира</h1>
+
+{% if error %}
+    <p class="error">{{ error }}</p>
+{% endif %}
+
+<form method="post" action="/register" class="card">
+    <label>
+        Ім'я та прізвище
+        <input type="text" name="full_name" value="{{ full_name or '' }}" minlength="2" required autofocus>
+    </label>
+    <label>
+        Email
+        <input type="email" name="email" value="{{ email or '' }}" required>
+    </label>
+    <label>
+        Пароль (мінімум 8 символів)
+        <input type="password" name="password" minlength="8" required>
+    </label>
+    <button type="submit">Зареєструватися</button>
+</form>
+
+<p>Реєстрація адміністраторів через веб недоступна — їх створює скрипт
+<code>scripts/create_admin.py</code>.</p>
+{% endblock %}
