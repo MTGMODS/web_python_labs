@@ -28,7 +28,8 @@ class Settings(BaseSettings):
     db_echo: bool = False
 
     # Автентифікація
-    secret_key: str = "dev-secret-change-me"
+    # Довжина не менша за 32 байти — вимога HMAC-SHA256 (RFC 7518).
+    secret_key: str = "dev-only-secret-key-change-in-production"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
     access_token_cookie: str = "access_token"
@@ -37,7 +38,7 @@ class Settings(BaseSettings):
     seat_hold_minutes: int = 10
 
     # Початковий адміністратор для scripts/seed.py
-    admin_email: str = "admin@bus.local"
+    admin_email: str = "admin@busline.ua"
     admin_password: str = "admin12345"
 
 
