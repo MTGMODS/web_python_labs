@@ -1,0 +1,39 @@
+# Віртуальні оточення
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Оточення та секрети
+.env
+.env.local
+*.env.local
+
+# Інструменти
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# ОС
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Локальні дані БД
+*.db
+*.sqlite3
+data/

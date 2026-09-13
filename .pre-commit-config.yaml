@@ -1,0 +1,30 @@
+# Хуки контролю якості коду.
+# Встановлення: pre-commit install
+# Ручний запуск по всьому проєкту: pre-commit run --all-files
+#
+# Коміт блокується, якщо код має синтаксичні помилки (ruff),
+# порушення стилю (ruff / black) або типові дефекти файлів.
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-ast
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.7
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+
+  - repo: https://github.com/psf/black
+    rev: 26.5.1
+    hooks:
+      - id: black

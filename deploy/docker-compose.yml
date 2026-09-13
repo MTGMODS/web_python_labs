@@ -1,0 +1,28 @@
+# Інфраструктура для локальної розробки.
+# У лабораторній №1 піднімається лише PostgreSQL: сам застосунок
+# запускається локально через uvicorn. Redis, балансувальник та
+# додаткові екземпляри застосунку додаються у наступних роботах.
+#
+# Запуск: docker compose -f deploy/docker-compose.yml up -d
+
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: bus_tickets_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bus_app
+      POSTGRES_PASSWORD: bus_app
+      POSTGRES_DB: bus_tickets
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bus_app -d bus_tickets"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
