@@ -13,9 +13,12 @@ from decimal import Decimal
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.db.session import SessionFactory
 from app.domain.fleet import BUS_TYPE_TEMPLATES, build_seat_map, suggest_bus_class
-from app.models import Bus, BusType, Route, Seat, Trip
+from app.models import Bus, BusType, Route, Seat, Trip, UserRole
+from app.services import users as users_service
+from app.services.exceptions import ConflictError
 
 ROUTES: tuple[dict[str, object], ...] = (
     {
@@ -47,6 +50,50 @@ ROUTES: tuple[dict[str, object], ...] = (
 DEPARTURE_HOURS: tuple[int, ...] = (7, 14, 21)
 DAYS_AHEAD = 3
 PLATES_PER_TYPE = 2
+
+# Демонстраційні облікові записи. Двоє пасажирів потрібні, щоб показати
+# горизонтальне розмежування прав: чужий квиток недоступний.
+DEMO_PASSENGERS: tuple[dict[str, str], ...] = (
+    {
+        "email": "passenger@busline.ua",
+        "password": "passenger123",
+        "full_name": "Олена Пасажирко",
+    },
+    {
+        "email": "passenger2@busline.ua",
+        "password": "passenger123",
+        "full_name": "Ігор Подорожній",
+    },
+)
+
+
+def sync_users(session: Session) -> int:
+    """Створити адміністратора та демонстраційних пасажирів, якщо їх ще немає."""
+    accounts = [
+        {
+            "email": settings.admin_email,
+            "password": settings.admin_password,
+            "full_name": "Адміністратор перевізника",
+            "role": UserRole.ADMIN,
+        },
+        *[{**passenger, "role": UserRole.PASSENGER} for passenger in DEMO_PASSENGERS],
+    ]
+
+    created = 0
+    for account in accounts:
+        try:
+            users_service.create_user(
+                session,
+                email=str(account["email"]),
+                password=str(account["password"]),
+                full_name=str(account["full_name"]),
+                role=account["role"],  # type: ignore[arg-type]
+            )
+        except ConflictError:
+            continue
+        created += 1
+
+    return created
 
 
 def sync_bus_types(session: Session) -> dict[str, BusType]:
@@ -122,8 +169,10 @@ def create_trips(session: Session, routes: dict[str, Route], bus_types: dict[str
 
         for day_offset in range(DAYS_AHEAD):
             for hour in DEPARTURE_HOURS:
+                # Розклад починається з наступної доби, щоб усі засіяні рейси
+                # були доступні для бронювання незалежно від часу запуску.
                 departure_at = datetime.combine(
-                    today + timedelta(days=day_offset),
+                    today + timedelta(days=day_offset + 1),
                     time(hour=hour, tzinfo=UTC),
                 )
 
@@ -163,6 +212,7 @@ def create_trips(session: Session, routes: dict[str, Route], bus_types: dict[str
 
 def main() -> None:
     with SessionFactory() as session:
+        created_users = sync_users(session)
         bus_types = sync_bus_types(session)
         sync_buses(session, bus_types)
         routes = sync_routes(session)
@@ -170,9 +220,13 @@ def main() -> None:
         session.commit()
 
     print(
-        f"Готово: шаблонів салону — {len(bus_types)}, "
+        f"Готово: нових користувачів — {created_users}, "
+        f"шаблонів салону — {len(bus_types)}, "
         f"маршрутів — {len(routes)}, нових рейсів — {created_trips}."
     )
+    print(f"Адміністратор: {settings.admin_email} / {settings.admin_password}")
+    for passenger in DEMO_PASSENGERS:
+        print(f"Пасажир: {passenger['email']} / {passenger['password']}")
 
 
 if __name__ == "__main__":
