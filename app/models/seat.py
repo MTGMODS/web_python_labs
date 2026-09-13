@@ -12,6 +12,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.ticket import Ticket
     from app.models.trip import Trip
 
 
@@ -63,6 +64,11 @@ class Seat(Base, TimestampMixin):
     held_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     trip: Mapped[Trip] = relationship(back_populates="seats")
+    # Скасовані квитки на місце залишаються в історії, тому зв'язок — список.
+    tickets: Mapped[list[Ticket]] = relationship(
+        back_populates="seat",
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self) -> str:
         return f"<Seat {self.number} trip={self.trip_id} {self.status.value}>"

@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from app.models.bus import Bus, BusType
     from app.models.route import Route
     from app.models.seat import Seat
+    from app.models.ticket import Ticket
 
 
 class TripStatus(enum.StrEnum):
@@ -77,6 +78,10 @@ class Trip(Base, TimestampMixin):
     bus_type: Mapped[BusType] = relationship(back_populates="trips")
     bus: Mapped[Bus | None] = relationship(back_populates="trips")
     seats: Mapped[list[Seat]] = relationship(
+        back_populates="trip",
+        cascade="all, delete-orphan",
+    )
+    tickets: Mapped[list[Ticket]] = relationship(
         back_populates="trip",
         cascade="all, delete-orphan",
     )

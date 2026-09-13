@@ -200,3 +200,9 @@ def downgrade() -> None:
     op.drop_table("routes")
     op.drop_table("bus_types")
     # ### end Alembic commands ###
+
+    # Автогенерація не видаляє типи ENUM, через що повторний upgrade падав би
+    # з помилкою "type already exists". Прибираємо їх явно.
+    sa.Enum(name="seat_status").drop(op.get_bind(), checkfirst=True)
+    sa.Enum(name="trip_status").drop(op.get_bind(), checkfirst=True)
+    sa.Enum(name="bus_class").drop(op.get_bind(), checkfirst=True)
