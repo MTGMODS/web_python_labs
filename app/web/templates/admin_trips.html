@@ -39,7 +39,7 @@
             <tr>
                 <td>#{{ trip.id }}</td>
                 <td>{{ trip.route.origin_city }} → {{ trip.route.destination_city }}</td>
-                <td>{{ trip.departure_at | kyiv }}</td>
+                <td>{{ kyiv(trip.departure_at) }}</td>
                 <td>{{ trip.bus_type.title }}</td>
                 <td>{{ status_ua.get(trip.status.value, trip.status.value) }}</td>
                 <td>

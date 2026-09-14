@@ -5,7 +5,7 @@
 <p class="muted"><a href="/">← до розкладу</a></p>
 <h1>{{ trip.route.origin_city }} → {{ trip.route.destination_city }}</h1>
 <p class="lead">
-    Відправлення {{ trip.departure_at | kyiv }} · прибуття {{ trip.arrival_at | kyiv }}
+    Відправлення {{ kyiv(trip.departure_at) }} · прибуття {{ kyiv(trip.arrival_at) }}
     · {{ trip.bus_type.title }} · {{ trip.base_price }} ₴
 </p>
 

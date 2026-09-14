@@ -12,6 +12,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Form, Request, Response, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqlalchemy import func, select
 
 from app.api.deps import OptionalUser, PageUser, SessionDep, get_optional_user
@@ -36,8 +37,14 @@ from app.web.helpers import (
 
 router = APIRouter(tags=["pages"], include_in_schema=False)
 
-templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
-templates.env.filters["kyiv"] = format_kyiv
+_templates_dir = Path(__file__).parent / "templates"
+_jinja_env = Environment(
+    loader=FileSystemLoader(str(_templates_dir)),
+    autoescape=select_autoescape(["html", "xml"]),
+)
+_jinja_env.filters["kyiv"] = format_kyiv
+_jinja_env.globals["kyiv"] = format_kyiv
+templates = Jinja2Templates(env=_jinja_env)
 
 LOGIN_URL = "/login"
 PASSENGER_HOME_URL = "/home"
@@ -69,6 +76,7 @@ def _page(
     payload = {
         "current_user": current_user,
         "status_ua": STATUS_UA,
+        "kyiv": format_kyiv,
         "notice": NOTICE_UA.get(request.query_params.get("notice", ""), ""),
         "error": request.query_params.get("error", ""),
         **context,

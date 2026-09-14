@@ -20,7 +20,7 @@
                     <td>#{{ ticket.id }}</td>
                     <td>{{ ticket.user.full_name }}<br><span class="muted">{{ ticket.user.email }}</span></td>
                     <td>{{ ticket.trip.route.origin_city }} → {{ ticket.trip.route.destination_city }}<br>
-                        <span class="muted">{{ ticket.trip.departure_at | kyiv }}</span></td>
+                        <span class="muted">{{ kyiv(ticket.trip.departure_at) }}</span></td>
                     <td>{{ ticket.seat.number }}</td>
                     <td>{{ status_ua.get(ticket.status.value, ticket.status.value) }}</td>
                     <td>{{ ticket.price }} ₴</td>

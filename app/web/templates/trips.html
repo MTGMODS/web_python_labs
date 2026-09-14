@@ -34,7 +34,7 @@
                     <span class="badge">{{ status_ua.get(trip.status.value, trip.status.value) }} · {{ trip.bus_type.title }}</span>
                     <h2>{{ trip.route.origin_city }} → {{ trip.route.destination_city }}</h2>
                     <p class="meta">
-                        {{ trip.departure_at | kyiv }}
+                        {{ kyiv(trip.departure_at) }}
                         · вільних місць: {{ free_counts.get(trip.id, 0) }} / {{ trip.bus_type.seats_count }}
                     </p>
                 </div>

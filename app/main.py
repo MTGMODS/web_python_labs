@@ -27,8 +27,6 @@ app = FastAPI(
         "та блокування місць під час транзакції."
     ),
     debug=settings.debug,
-    docs_url=None,
-    redoc_url=None,
 )
 
 app.include_router(health_router)

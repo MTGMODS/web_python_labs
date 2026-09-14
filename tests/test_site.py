@@ -10,6 +10,7 @@ from app.models import Seat, SeatStatus, Trip, User
 from app.models.bus import BusType
 from app.models.route import Route
 from app.services import schedule as schedule_service
+from app.web.helpers import format_kyiv
 from tests.conftest import PASSWORD
 
 
@@ -28,6 +29,8 @@ def test_catalog_lists_seeded_style_trip(client: TestClient, trip: Trip) -> None
     assert response.status_code == 200
     assert "Київ" in response.text
     assert "Львів" in response.text
+    assert "Обрати місця" in response.text
+    assert format_kyiv(trip.departure_at) in response.text
     assert f"/trips/{trip.id}" in response.text
 
 
@@ -64,6 +67,7 @@ def test_passenger_can_hold_pay_and_cancel_via_site(
     assert home.status_code == 200
     assert "утримується" in home.text
     assert "/tickets/" in home.text
+    assert format_kyiv(trip.departure_at) in home.text
 
     ticket_id = _ticket_id_from_home(home.text)
     pay = client.post(f"/tickets/{ticket_id}/pay", follow_redirects=False)
