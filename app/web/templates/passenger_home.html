@@ -1,37 +1,50 @@
 {% extends "base.html" %}
-{% block title %}Кабінет пасажира{% endblock %}
+{% block title %}Мої квитки{% endblock %}
 
 {% block content %}
-<h1>Вітаємо, {{ current_user.full_name }}</h1>
-<p><span class="role">роль: {{ current_user.role.value }}</span></p>
+<h1>Кабінет пасажира</h1>
+<p class="lead">{{ current_user.full_name }} · після утримання місця у вас є 10 хвилин на оплату.</p>
 
 <div class="card">
-    <h2>Мої квитки</h2>
+    <p><a class="btn" href="/">Знайти рейс</a></p>
     {% if tickets %}
         <table>
-            <tr><th>№</th><th>Рейс</th><th>Місце</th><th>Статус</th><th>Ціна</th></tr>
+            <tr>
+                <th>Квиток</th>
+                <th>Маршрут</th>
+                <th>Відправлення</th>
+                <th>Місце</th>
+                <th>Статус</th>
+                <th>Ціна</th>
+                <th></th>
+            </tr>
             {% for ticket in tickets %}
                 <tr>
-                    <td>{{ ticket.id }}</td>
-                    <td>{{ ticket.trip_id }}</td>
+                    <td>#{{ ticket.id }}</td>
+                    <td>{{ ticket.trip.route.origin_city }} → {{ ticket.trip.route.destination_city }}</td>
+                    <td>{{ ticket.trip.departure_at | kyiv }}</td>
                     <td>{{ ticket.seat.number }}</td>
-                    <td>{{ ticket.status.value }}</td>
-                    <td>{{ ticket.price }}</td>
+                    <td>{{ status_ua.get(ticket.status.value, ticket.status.value) }}</td>
+                    <td>{{ ticket.price }} ₴</td>
+                    <td>
+                        {% if ticket.status.value == 'held' %}
+                            <form class="inline-form" method="post" action="/tickets/{{ ticket.id }}/pay">
+                                <button type="submit">Оплатити</button>
+                            </form>
+                            <form class="inline-form" method="post" action="/tickets/{{ ticket.id }}/cancel">
+                                <button class="danger" type="submit">Скасувати</button>
+                            </form>
+                        {% elif ticket.status.value == 'paid' %}
+                            <form class="inline-form" method="post" action="/tickets/{{ ticket.id }}/cancel">
+                                <button class="secondary" type="submit">Повернути</button>
+                            </form>
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
         </table>
     {% else %}
-        <p>Квитків ще немає. Оберіть рейс через API та заблокуйте місце.</p>
+        <p>Квитків ще немає. Відкрийте розклад і натисніть вільне місце на схемі салону.</p>
     {% endif %}
-</div>
-
-<div class="card">
-    <h2>Доступні дії</h2>
-    <p>Ця сторінка — заглушка кабінету. Бізнес-операції виконуються через REST API:</p>
-    <ul>
-        {% for action in actions %}
-            <li><code>{{ action }}</code></li>
-        {% endfor %}
-    </ul>
 </div>
 {% endblock %}

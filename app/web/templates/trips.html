@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Розклад рейсів{% endblock %}
+
+{% block content %}
+<h1>Квитки на міжміські автобуси</h1>
+<p class="lead">Оберіть напрямок і дату, натисніть місце на схемі салону й оплатіть квиток у кабінеті.</p>
+
+<form class="card filters" method="get" action="/">
+    <label>
+        Маршрут
+        <select name="route_id">
+            <option value="">Усі напрямки</option>
+            {% for route in routes %}
+                <option value="{{ route.id }}" {% if selected_route_id == route.id %}selected{% endif %}>
+                    {{ route.origin_city }} → {{ route.destination_city }} ({{ route.distance_km }} км)
+                </option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>
+        Дата виїзду
+        <input type="date" name="departure_date" value="{{ selected_date or '' }}">
+    </label>
+    <button type="submit">Показати рейси</button>
+</form>
+
+{% if trips %}
+    <div class="trip-list">
+        {% for trip in trips %}
+            <article class="card trip">
+                <div>
+                    <h2>{{ trip.route.origin_city }} → {{ trip.route.destination_city }}</h2>
+                    <p class="meta">
+                        {{ trip.departure_at | kyiv }}
+                        · {{ trip.bus_type.title }}
+                        · {{ status_ua.get(trip.status.value, trip.status.value) }}
+                        · вільних місць: {{ free_counts.get(trip.id, 0) }} / {{ trip.bus_type.seats_count }}
+                    </p>
+                </div>
+                <div>
+                    <div class="price">{{ trip.base_price }} ₴</div>
+                    <a class="btn" href="/trips/{{ trip.id }}">Обрати місця</a>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card">
+        <p>Рейсів за цими умовами немає. Змініть дату або напрямок.</p>
+    </div>
+{% endif %}
+{% endblock %}

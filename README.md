@@ -45,8 +45,8 @@ tests/          автотести
 docker compose -f deploy/docker-compose.yml up --build
 ```
 
-- API / Swagger: http://127.0.0.1:8000/docs
-- Логін: http://127.0.0.1:8000/login
+- Сайт (основний інтерфейс): http://127.0.0.1:8000/
+- Вхід: http://127.0.0.1:8000/login
 - Зупинити: `docker compose -f deploy/docker-compose.yml down` (том з даними лишається)
 
 Локальний запуск uvicorn без контейнера застосунку (для тестів і відлагодження):
@@ -62,14 +62,15 @@ python -m scripts.seed
 uvicorn app.main:app --reload
 ```
 
-Документація API: http://127.0.0.1:8000/docs
+Документація API вимкнена (`/docs` більше не відкривається): увесь сценарій
+робиться через сайт — розклад, схема салону, оплата, панель перевізника.
 
 Після `seed` можна увійти готовими акаунтами:
 
 | Роль | Email | Пароль | Сторінка |
 | --- | --- | --- | --- |
 | адміністратор | `admin@busline.ua` | `admin12345` | http://127.0.0.1:8000/admin |
-| пасажир | `passenger@busline.ua` | `passenger123` | http://127.0.0.1:8000/home |
+| пасажир | `passenger@busline.ua` | `passenger123` | розклад `/`, квитки `/home` |
 | другий пасажир | `passenger2@busline.ua` | `passenger123` | для демонстрації IDOR |
 
 Окремий адміністратор:

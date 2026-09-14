@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Усі квитки{% endblock %}
+
+{% block content %}
+<h1>Квитки пасажирів</h1>
+<div class="card">
+    {% if tickets %}
+        <table>
+            <tr>
+                <th>№</th>
+                <th>Пасажир</th>
+                <th>Маршрут</th>
+                <th>Місце</th>
+                <th>Статус</th>
+                <th>Ціна</th>
+                <th></th>
+            </tr>
+            {% for ticket in tickets %}
+                <tr>
+                    <td>#{{ ticket.id }}</td>
+                    <td>{{ ticket.user.full_name }}<br><span class="muted">{{ ticket.user.email }}</span></td>
+                    <td>{{ ticket.trip.route.origin_city }} → {{ ticket.trip.route.destination_city }}<br>
+                        <span class="muted">{{ ticket.trip.departure_at | kyiv }}</span></td>
+                    <td>{{ ticket.seat.number }}</td>
+                    <td>{{ status_ua.get(ticket.status.value, ticket.status.value) }}</td>
+                    <td>{{ ticket.price }} ₴</td>
+                    <td>
+                        {% if ticket.status.value != 'cancelled' %}
+                            <form method="post" action="/tickets/{{ ticket.id }}/cancel">
+                                <input type="hidden" name="next" value="/admin/tickets">
+                                <button class="danger" type="submit">Скасувати</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Квитків ще немає.</p>
+    {% endif %}
+</div>
+{% endblock %}

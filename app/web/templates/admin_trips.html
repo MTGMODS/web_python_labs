@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Керування розкладом{% endblock %}
+
+{% block content %}
+<h1>Рейси</h1>
+<p class="lead">Клас автобуса ставиться автоматично за довжиною маршруту. Місця генеруються з шаблону салону.</p>
+
+<form class="card form-grid" method="post" action="/admin/trips">
+    <label>
+        Маршрут
+        <select name="route_id" required>
+            {% for route in routes %}
+                <option value="{{ route.id }}">{{ route.origin_city }} → {{ route.destination_city }} ({{ route.distance_km }} км)</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>
+        Відправлення (київський час)
+        <input type="datetime-local" name="departure_at" required>
+    </label>
+    <label>
+        Ціна, ₴
+        <input type="number" name="base_price" min="1" step="0.01" value="450" required>
+    </label>
+    <button type="submit">Додати рейс</button>
+</form>
+
+<div class="card">
+    <table>
+        <tr>
+            <th>Рейс</th>
+            <th>Маршрут</th>
+            <th>Час</th>
+            <th>Автобус</th>
+            <th>Статус</th>
+            <th></th>
+        </tr>
+        {% for trip in trips %}
+            <tr>
+                <td>#{{ trip.id }}</td>
+                <td>{{ trip.route.origin_city }} → {{ trip.route.destination_city }}</td>
+                <td>{{ trip.departure_at | kyiv }}</td>
+                <td>{{ trip.bus_type.title }}</td>
+                <td>{{ status_ua.get(trip.status.value, trip.status.value) }}</td>
+                <td>
+                    <form class="inline-form" method="post" action="/admin/trips/{{ trip.id }}/status">
+                        <select name="status">
+                            {% for value, label in trip_statuses %}
+                                <option value="{{ value }}" {% if trip.status.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="secondary" type="submit">Зберегти</button>
+                    </form>
+                    <p><a href="/trips/{{ trip.id }}">схема салону</a></p>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

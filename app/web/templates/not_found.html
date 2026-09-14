@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Не знайдено{% endblock %}
+
+{% block content %}
+<h1>404</h1>
+<p class="error">{{ detail or "Сторінку не знайдено" }}</p>
+<p><a href="/">Повернутися до розкладу</a></p>
+{% endblock %}

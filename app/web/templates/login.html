@@ -2,16 +2,13 @@
 {% block title %}Вхід{% endblock %}
 
 {% block content %}
-<h1>Вхід у систему</h1>
-
+<h1>Вхід</h1>
 {% if registered %}
     <p class="notice">Реєстрація успішна. Увійдіть зі своїми даними.</p>
 {% endif %}
-{% if error %}
-    <p class="error">{{ error }}</p>
-{% endif %}
 
 <form method="post" action="/login" class="card">
+    <input type="hidden" name="next" value="{{ next_path }}">
     <label>
         Email
         <input type="email" name="email" value="{{ email or '' }}" required autofocus>
@@ -22,6 +19,6 @@
     </label>
     <button type="submit">Увійти</button>
 </form>
-
 <p>Немає акаунта? <a href="/register">Зареєструватися як пасажир</a>.</p>
+<p class="muted">Демо: passenger@busline.ua / passenger123 · admin@busline.ua / admin12345</p>
 {% endblock %}

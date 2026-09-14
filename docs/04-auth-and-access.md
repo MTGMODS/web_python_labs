@@ -29,8 +29,8 @@
 
 Токен видається двома каналами:
 
-- заголовок `Authorization: Bearer …` — для API і кнопки Authorize у Swagger;
-- HttpOnly cookie `access_token` — для HTML-сторінок.
+- HttpOnly cookie `access_token` — основний шлях для сайту;
+- заголовок `Authorization: Bearer …` — для REST API (Swagger вимкнено).
 
 Ядро перевірки одне (`app/api/deps.py`). Відрізняється лише реакція на відсутність
 токена: REST віддає **401**, сторінка — **302** на `/login`. Це два дозволені

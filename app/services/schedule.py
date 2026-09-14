@@ -1,11 +1,11 @@
 """Керування розкладом — операції адміністратора перевізника."""
 
-from datetime import datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from decimal import Decimal
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.domain.fleet import build_seat_map, suggest_bus_class
 from app.models.bus import Bus, BusType
@@ -15,6 +15,60 @@ from app.models.ticket import Ticket, TicketStatus
 from app.models.trip import Trip, TripStatus
 from app.services.booking import ACTIVE_TICKET_STATUSES
 from app.services.exceptions import ConflictError, NotFoundError
+
+
+def list_routes(session: Session, *, active_only: bool = True) -> list[Route]:
+    stmt = select(Route).order_by(Route.origin_city, Route.destination_city)
+    if active_only:
+        stmt = stmt.where(Route.is_active.is_(True))
+    return list(session.scalars(stmt))
+
+
+def list_trips(
+    session: Session,
+    *,
+    route_id: int | None = None,
+    departure_date: date | None = None,
+    limit: int = 50,
+) -> list[Trip]:
+    """Пошук рейсів для сайту й API: маршрут і дата під індекс, без функцій над колонкою."""
+    stmt = (
+        select(Trip)
+        .options(selectinload(Trip.route), selectinload(Trip.bus_type))
+        .order_by(Trip.departure_at)
+        .limit(limit)
+    )
+    if route_id is not None:
+        stmt = stmt.where(Trip.route_id == route_id)
+    if departure_date is not None:
+        day_start = datetime.combine(departure_date, time.min, tzinfo=UTC)
+        stmt = stmt.where(
+            Trip.departure_at >= day_start,
+            Trip.departure_at < day_start + timedelta(days=1),
+        )
+    return list(session.scalars(stmt))
+
+
+def get_trip(session: Session, trip_id: int) -> Trip:
+    trip = session.scalar(
+        select(Trip)
+        .options(selectinload(Trip.route), selectinload(Trip.bus_type), selectinload(Trip.seats))
+        .where(Trip.id == trip_id)
+    )
+    if trip is None:
+        raise NotFoundError("Рейс не знайдено")
+    return trip
+
+
+def free_seat_counts(session: Session, trip_ids: list[int]) -> dict[int, int]:
+    if not trip_ids:
+        return {}
+    rows = session.execute(
+        select(Seat.trip_id, func.count(Seat.id))
+        .where(Seat.trip_id.in_(trip_ids), Seat.status == SeatStatus.FREE)
+        .group_by(Seat.trip_id)
+    ).all()
+    return dict(rows)
 
 
 def create_trip(

@@ -3,11 +3,6 @@
 
 {% block content %}
 <h1>Реєстрація пасажира</h1>
-
-{% if error %}
-    <p class="error">{{ error }}</p>
-{% endif %}
-
 <form method="post" action="/register" class="card">
     <label>
         Ім'я та прізвище
@@ -23,7 +18,5 @@
     </label>
     <button type="submit">Зареєструватися</button>
 </form>
-
-<p>Реєстрація адміністраторів через веб недоступна — їх створює скрипт
-<code>scripts/create_admin.py</code>.</p>
+<p class="muted">Адміністратора через сайт створити не можна — лише скриптом наповнення.</p>
 {% endblock %}

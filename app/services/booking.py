@@ -51,7 +51,11 @@ def _release_if_expired(session: Session, seat: Seat, moment: datetime) -> None:
 
 
 def _tickets_query() -> Select[tuple[Ticket]]:
-    return select(Ticket).options(selectinload(Ticket.seat), selectinload(Ticket.trip))
+    return select(Ticket).options(
+        selectinload(Ticket.seat),
+        selectinload(Ticket.user),
+        selectinload(Ticket.trip).selectinload(Trip.route),
+    )
 
 
 def _get_ticket_for_actor(session: Session, actor: User, ticket_id: int) -> Ticket:

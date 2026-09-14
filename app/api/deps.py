@@ -63,6 +63,9 @@ def get_optional_user(
     return _load_user(session, token)
 
 
+OptionalUser = Annotated[User | None, Depends(get_optional_user)]
+
+
 def get_current_user(
     session: SessionDep,
     header_token: TokenFromHeader = None,

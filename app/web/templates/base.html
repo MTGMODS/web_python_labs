@@ -1,49 +1,45 @@
-{# Мінімальний макет. Візуальна частина не є метою роботи, тому стилі вбудовані. #}
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Квитки на автобуси{% endblock %}</title>
-    <style>
-        :root { color-scheme: light dark; }
-        body {
-            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-            max-width: 46rem;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-            line-height: 1.5;
-        }
-        header { border-bottom: 1px solid #8884; padding-bottom: .75rem; margin-bottom: 1.5rem; }
-        header a { margin-right: 1rem; }
-        h1 { font-size: 1.4rem; margin: 0 0 .25rem; }
-        .role { display: inline-block; padding: .1rem .5rem; border: 1px solid #8886; border-radius: 1rem; font-size: .8rem; }
-        .card { border: 1px solid #8884; border-radius: .5rem; padding: 1rem; margin-bottom: 1rem; }
-        .error { color: #b00020; font-weight: 600; }
-        .notice { color: #0a7d28; font-weight: 600; }
-        label { display: block; margin-bottom: .75rem; }
-        input { display: block; width: 100%; padding: .4rem; margin-top: .2rem; }
-        button { padding: .5rem 1rem; cursor: pointer; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { text-align: left; padding: .35rem .5rem; border-bottom: 1px solid #8883; }
-        code { font-size: .85rem; }
-    </style>
+    <title>{% block title %}Автобусні квитки{% endblock %}</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
-<header>
-    <strong>Міжміські автобуси</strong>
-    <nav>
-        {% if current_user %}
-            <a href="{{ '/admin' if current_user.is_admin else '/home' }}">Головна</a>
-            <a href="/docs">API</a>
-            <a href="/logout">Вийти ({{ current_user.email }})</a>
-        {% else %}
-            <a href="/login">Вхід</a>
-            <a href="/register">Реєстрація</a>
-            <a href="/docs">API</a>
+<div class="wrap">
+    <header class="topbar">
+        <a class="brand" href="/">
+            <strong>BusLine</strong>
+            <span>міжміські квитки</span>
+        </a>
+        <nav>
+            <a href="/">Розклад</a>
+            {% if current_user %}
+                {% if current_user.is_admin %}
+                    <a href="/admin">Панель</a>
+                    <a href="/admin/trips">Рейси</a>
+                    <a href="/admin/tickets">Квитки</a>
+                {% else %}
+                    <a href="/home">Мої квитки</a>
+                {% endif %}
+                <span class="role-chip">{{ current_user.full_name }}</span>
+                <a href="/logout">Вийти</a>
+            {% else %}
+                <a href="/login">Вхід</a>
+                <a href="/register">Реєстрація</a>
+            {% endif %}
+        </nav>
+    </header>
+    <main>
+        {% if notice %}
+            <p class="notice">{{ notice }}</p>
         {% endif %}
-    </nav>
-</header>
-{% block content %}{% endblock %}
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</div>
 </body>
 </html>

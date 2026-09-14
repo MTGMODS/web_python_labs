@@ -4,7 +4,7 @@
 {% block content %}
 <h1>403 — доступ заборонено</h1>
 <p class="error">{{ detail }}</p>
-<p>Ваша роль: <span class="role">{{ current_user.role.value }}</span>.
-Для цього розділу потрібна роль адміністратора.</p>
-<p><a href="/home">Повернутися до свого кабінету</a></p>
+<p>Ваша роль: <span class="role-chip">{{ status_ua.get(current_user.role.value, current_user.role.value) }}</span>.
+Цей розділ лише для адміністратора перевізника.</p>
+<p><a class="btn" href="/">До розкладу</a> <a class="btn secondary" href="/home">Мій кабінет</a></p>
 {% endblock %}

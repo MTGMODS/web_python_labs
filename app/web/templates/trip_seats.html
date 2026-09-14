@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Рейс {{ trip.route.origin_city }} — {{ trip.route.destination_city }}{% endblock %}
+
+{% block content %}
+<p class="muted"><a href="/">← до розкладу</a></p>
+<h1>{{ trip.route.origin_city }} → {{ trip.route.destination_city }}</h1>
+<p class="lead">
+    Відправлення {{ trip.departure_at | kyiv }} · прибуття {{ trip.arrival_at | kyiv }}
+    · {{ trip.bus_type.title }} · {{ trip.base_price }} ₴
+</p>
+
+<div class="legend">
+    <span><i class="seat free"></i> вільне — натисніть, щоб утримати</span>
+    <span><i class="seat held"></i> хтось оформлює</span>
+    <span><i class="seat sold"></i> продане</span>
+    <span>порожня клітинка — прохід</span>
+</div>
+
+{% if trip.status.value != 'scheduled' %}
+    <p class="error">Рейс зараз недоступний для продажу ({{ status_ua.get(trip.status.value) }}).</p>
+{% endif %}
+
+<div class="card">
+    <h2>Схема салону</h2>
+    <div class="deck-wrap">
+        <div class="deck" style="grid-template-columns: repeat({{ trip.bus_type.column_count }}, 2.7rem);">
+            {% for row in grid %}
+                {% for seat in row %}
+                    {% if seat is none %}
+                        <div class="aisle">·</div>
+                    {% elif seat.status.value == 'free' and current_user and not current_user.is_admin and trip.status.value == 'scheduled' %}
+                        <form method="post" action="/trips/{{ trip.id }}/seats/{{ seat.number }}/hold">
+                            <button class="seat free" type="submit" title="Місце {{ seat.number }}">{{ seat.number }}</button>
+                        </form>
+                    {% elif seat.status.value == 'free' and not current_user %}
+                        <a class="seat free" href="/login?next=/trips/{{ trip.id }}" title="Увійдіть, щоб обрати місце {{ seat.number }}">{{ seat.number }}</a>
+                    {% else %}
+                        <div class="seat {{ seat.status.value }}" title="Місце {{ seat.number }}">{{ seat.number }}</div>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+    {% if not current_user %}
+        <p class="muted">Щоб забронювати місце, <a href="/login?next=/trips/{{ trip.id }}">увійдіть</a> або
+            <a href="/register">зареєструйтесь</a>.</p>
+    {% elif current_user.is_admin %}
+        <p class="muted">Адміністратор бачить схему, продаж квитків — у кабінеті пасажира.</p>
+    {% endif %}
+</div>
+{% endblock %}

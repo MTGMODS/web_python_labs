@@ -62,7 +62,7 @@ def test_passenger_home_page_renders(client: TestClient, passenger: User) -> Non
 
     assert response.status_code == 200
     assert passenger.full_name in response.text
-    assert "passenger" in response.text
+    assert "Кабінет пасажира" in response.text
 
 
 def test_admin_home_page_renders(client: TestClient, admin: User) -> None:
@@ -136,4 +136,4 @@ def test_logout_redirects_to_login(client: TestClient, passenger: User) -> None:
     response = client.get("/logout", follow_redirects=False)
 
     assert response.status_code == 302
-    assert response.headers["location"] == "/login"
+    assert response.headers["location"] == "/"

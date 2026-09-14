@@ -3,27 +3,22 @@
 
 {% block content %}
 <h1>Панель перевізника</h1>
-<p>{{ current_user.full_name }} <span class="role">роль: {{ current_user.role.value }}</span></p>
+<p class="lead">{{ current_user.full_name }} · динамічний розклад і квитки пасажирів.</p>
 
-<div class="card">
-    <h2>Стан системи</h2>
-    <table>
-        <tr><th>Користувачів</th><td>{{ stats.users_total }}</td></tr>
-        <tr><th>Маршрутів</th><td>{{ stats.routes_total }}</td></tr>
-        <tr><th>Рейсів у розкладі</th><td>{{ stats.trips_total }}</td></tr>
-        {% for name, total in stats.tickets_by_status.items() %}
-            <tr><th>Квитків ({{ name }})</th><td>{{ total }}</td></tr>
-        {% endfor %}
-    </table>
+<div class="stats">
+    <div class="stat"><span>Користувачів</span><b>{{ stats.users_total }}</b></div>
+    <div class="stat"><span>Маршрутів</span><b>{{ stats.routes_total }}</b></div>
+    <div class="stat"><span>Рейсів</span><b>{{ stats.trips_total }}</b></div>
+    {% for name, total in stats.tickets_by_status.items() %}
+        <div class="stat"><span>Квитки: {{ status_ua.get(name, name) }}</span><b>{{ total }}</b></div>
+    {% endfor %}
 </div>
 
 <div class="card">
-    <h2>Доступні дії</h2>
-    <p>Ця сторінка — заглушка панелі. Керування виконується через REST API:</p>
-    <ul>
-        {% for action in actions %}
-            <li><code>{{ action }}</code></li>
-        {% endfor %}
-    </ul>
+    <p>
+        <a class="btn" href="/admin/trips">Керувати рейсами</a>
+        <a class="btn secondary" href="/admin/tickets">Усі квитки</a>
+        <a class="btn secondary" href="/">Дивитись розклад як клієнт</a>
+    </p>
 </div>
 {% endblock %}
