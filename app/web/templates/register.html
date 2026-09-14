@@ -3,7 +3,7 @@
 
 {% block content %}
 <h1>Реєстрація пасажира</h1>
-<form method="post" action="/register" class="card">
+<form method="post" action="/register" class="card auth-card">
     <label>
         Ім'я та прізвище
         <input type="text" name="full_name" value="{{ full_name or '' }}" minlength="2" required autofocus>

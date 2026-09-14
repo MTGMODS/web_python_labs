@@ -2,8 +2,10 @@
 {% block title %}Розклад рейсів{% endblock %}
 
 {% block content %}
-<h1>Квитки на міжміські автобуси</h1>
-<p class="lead">Оберіть напрямок і дату, натисніть місце на схемі салону й оплатіть квиток у кабінеті.</p>
+<div class="hero">
+    <h1>Квитки на міжміські автобуси</h1>
+    <p class="lead">Оберіть напрямок і дату, натисніть місце на схемі салону й оплатіть квиток у кабінеті.</p>
+</div>
 
 <form class="card filters" method="get" action="/">
     <label>
@@ -29,15 +31,14 @@
         {% for trip in trips %}
             <article class="card trip">
                 <div>
+                    <span class="badge">{{ status_ua.get(trip.status.value, trip.status.value) }} · {{ trip.bus_type.title }}</span>
                     <h2>{{ trip.route.origin_city }} → {{ trip.route.destination_city }}</h2>
                     <p class="meta">
                         {{ trip.departure_at | kyiv }}
-                        · {{ trip.bus_type.title }}
-                        · {{ status_ua.get(trip.status.value, trip.status.value) }}
                         · вільних місць: {{ free_counts.get(trip.id, 0) }} / {{ trip.bus_type.seats_count }}
                     </p>
                 </div>
-                <div>
+                <div class="trip-fare">
                     <div class="price">{{ trip.base_price }} ₴</div>
                     <a class="btn" href="/trips/{{ trip.id }}">Обрати місця</a>
                 </div>
