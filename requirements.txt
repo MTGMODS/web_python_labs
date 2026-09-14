@@ -1,0 +1,28 @@
+# Усі пакети проєкту (рантайм + інструменти розробки).
+# Встановлення:
+#   python -m venv .venv
+#   .\.venv\Scripts\Activate.ps1
+#   pip install -r requirements.txt
+#
+# Після цього в VS Code / Cursor: Ctrl+Shift+P →
+# "Python: Select Interpreter" → обери .venv\Scripts\python.exe
+
+# Застосунок
+fastapi>=0.115
+uvicorn[standard]>=0.32
+sqlalchemy>=2.0.36
+alembic>=1.14
+psycopg[binary]>=3.2
+pydantic[email]>=2.9
+pydantic-settings>=2.6
+pyjwt>=2.10
+bcrypt>=4.2
+python-multipart>=0.0.20
+jinja2>=3.1
+
+# Розробка і тести
+ruff>=0.8
+black>=24.10
+pre-commit>=4.0
+pytest>=8.3
+httpx>=0.28

@@ -54,7 +54,7 @@ docker compose -f deploy/docker-compose.yml up --build
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install -e ".[dev]"
+pip install -r requirements.txt
 Copy-Item config\env.example .env
 docker compose -f deploy/docker-compose.yml up -d db
 alembic upgrade head
