@@ -4,7 +4,6 @@
 транспорті: форми й cookie замість JSON і заголовка Authorization.
 """
 
-from datetime import date
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Annotated, Any
@@ -28,6 +27,8 @@ from app.services.exceptions import DomainError, NotFoundError
 from app.web.helpers import (
     NOTICE_UA,
     STATUS_UA,
+    OptionalQueryDate,
+    OptionalQueryInt,
     error_redirect,
     format_kyiv,
     parse_kyiv_datetime,
@@ -198,8 +199,8 @@ def trips_page(
     request: Request,
     session: SessionDep,
     user: OptionalUser,
-    route_id: int | None = None,
-    departure_date: date | None = None,
+    route_id: OptionalQueryInt = None,
+    departure_date: OptionalQueryDate = None,
 ) -> Response:
     trips = schedule_service.list_trips(
         session,

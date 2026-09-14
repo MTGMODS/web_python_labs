@@ -1,8 +1,11 @@
 """Допоміжні речі для HTML-шару: безпечні редіректи, час, сітка салону."""
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
+from typing import Annotated
 from urllib.parse import quote
 from zoneinfo import ZoneInfo
+
+from pydantic import BeforeValidator
 
 from app.models.seat import Seat
 from app.models.trip import Trip
@@ -29,6 +32,17 @@ NOTICE_UA = {
     "trip_created": "Рейс додано до розкладу, місця згенеровано з шаблону салону.",
     "trip_updated": "Розклад оновлено.",
 }
+
+
+def blank_as_none(value: object) -> object:
+    """HTML-форма завжди шле порожнє поле як '', FastAPI інакше падає на date/int."""
+    if isinstance(value, str) and not value.strip():
+        return None
+    return value
+
+
+OptionalQueryInt = Annotated[int | None, BeforeValidator(blank_as_none)]
+OptionalQueryDate = Annotated[date | None, BeforeValidator(blank_as_none)]
 
 
 def safe_next_path(value: str | None, default: str = "/") -> str:

@@ -8,7 +8,9 @@
 from pathlib import Path
 from urllib.parse import quote
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 
@@ -18,6 +20,7 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.services.exceptions import DomainError
 from app.web import routes as web_routes
+from app.web.helpers import error_redirect
 
 app = FastAPI(
     title=settings.app_name,
@@ -50,6 +53,21 @@ def _login_redirect_target(request: Request) -> str:
     if path.startswith("/admin"):
         return web_routes.ADMIN_HOME_URL
     return web_routes.PASSENGER_HOME_URL
+
+
+@app.exception_handler(RequestValidationError)
+def handle_request_validation_error(request: Request, exc: RequestValidationError) -> Response:
+    """На сайті порожнє або криве поле форми не повинно ставати JSON 422."""
+    if request.url.path.startswith(settings.api_v1_prefix):
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content={"detail": jsonable_encoder(exc.errors())},
+        )
+    target = request.url.path or "/"
+    return RedirectResponse(
+        error_redirect(target, "Перевірте дату або інші поля форми"),
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
 
 
 @app.exception_handler(DomainError)

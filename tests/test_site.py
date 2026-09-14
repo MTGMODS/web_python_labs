@@ -23,6 +23,28 @@ def _login(client: TestClient, user: User) -> None:
     assert response.status_code == 302
 
 
+def test_catalog_empty_filters_stay_html(client: TestClient, trip: Trip) -> None:
+    """Порожні поля форми «Показати рейси» не повинні давати JSON 422."""
+    blank = client.get("/?route_id=&departure_date=")
+    route_only = client.get(f"/?route_id={trip.route_id}&departure_date=")
+
+    assert blank.status_code == 200
+    assert "text/html" in blank.headers["content-type"]
+    assert "Обрати місця" in blank.text
+    assert route_only.status_code == 200
+    assert "text/html" in route_only.headers["content-type"]
+    assert trip.route.origin_city in route_only.text
+    assert "date_from_datetime_parsing" not in route_only.text
+
+
+def test_catalog_invalid_date_does_not_return_json(client: TestClient) -> None:
+    response = client.get("/?departure_date=not-a-date", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert "application/json" not in response.headers.get("content-type", "")
+    assert "error=" in response.headers["location"]
+
+
 def test_catalog_lists_seeded_style_trip(client: TestClient, trip: Trip) -> None:
     response = client.get("/")
 
